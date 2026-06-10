@@ -54,6 +54,40 @@ export const GameUI: React.FC<GameUIProps> = ({
   const [showLevelList, setShowLevelList] = useState(false);
   const [showControlsGuide, setShowControlsGuide] = useState(true);
 
+  // Unified touch/mouse controller event binders for fluid virtual keypad control
+  const createControlHandlers = (control: 'forward' | 'backward' | 'left' | 'right' | 'jump') => {
+    return {
+      onMouseDown: (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setExternalControls((prev) => ({ ...prev, [control]: true }));
+      },
+      onMouseUp: (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setExternalControls((prev) => ({ ...prev, [control]: false }));
+      },
+      onMouseLeave: (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setExternalControls((prev) => ({ ...prev, [control]: false }));
+      },
+      onTouchStart: (e: React.TouchEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        gameAudio.resumeContext();
+        setExternalControls((prev) => ({ ...prev, [control]: true }));
+      },
+      onTouchEnd: (e: React.TouchEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setExternalControls((prev) => ({ ...prev, [control]: false }));
+      },
+      onTouchCancel: (e: React.TouchEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setExternalControls((prev) => ({ ...prev, [control]: false }));
+      },
+    };
+  };
+
   // Helper for Difficulty badge styling
   const getDifficultyBadge = (difficulty: Level['difficulty']) => {
     switch (difficulty) {
@@ -326,24 +360,17 @@ export const GameUI: React.FC<GameUIProps> = ({
       {gameState === 'playing' && (
         <div className="w-full flex justify-between items-end pointer-events-none gap-4">
           
-          {/* Left corner: Live Coordinates overlay and Sensitivity options */}
-          <div className="pointer-events-auto flex flex-col gap-2">
-            {/* Coordinates HUD */}
-            <div className="bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white font-mono text-[10px] text-slate-500 flex flex-col gap-1 shadow-md shadow-sky-100/10">
-              <div>POS X: <span className="text-slate-800 font-bold ml-1">{currentPos.x.toFixed(2)}</span></div>
-              <div>POS Y: <span className="text-slate-800 font-bold ml-1">{currentPos.y.toFixed(2)}</span></div>
-              <div>POS Z: <span className="text-slate-800 font-bold ml-1">{currentPos.z.toFixed(2)}</span></div>
-            </div>
-
-            {/* sensitivity Slider / Guide Toggle */}
-            <div className="flex gap-2 bg-white/90 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white items-center shadow-md shadow-sky-100/10">
-              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">操作感度:</span>
+          {/* Left Side: Mobile Controller (Sensitivity + Keyboard Fallback D-Pad) */}
+          <div className="pointer-events-auto flex flex-col gap-3">
+            {/* Sensitivity Options */}
+            <div className="flex gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white items-center shadow-md shadow-sky-100/10">
+              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">感度:</span>
               <div className="flex gap-1">
                 {[1.0, 1.4, 1.8].map((sVal, idx) => (
                   <button
                     key={idx}
                     onClick={() => onSetSensitivity(sVal)}
-                    className={`px-2.5 py-1 text-xs rounded-lg font-bold cursor-pointer transition-all touch-manipulation ${
+                    className={`px-2 py-0.5 text-xs rounded-lg font-bold cursor-pointer transition-all touch-manipulation ${
                       Math.abs(sensitivity - sVal) < 0.1
                         ? 'bg-blue-600 text-white font-extrabold shadow-sm'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
@@ -353,6 +380,48 @@ export const GameUI: React.FC<GameUIProps> = ({
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Tactile Virtual D-Pad (Always visible for testing / on mobile) */}
+            <div className="w-32 h-32 relative rounded-full bg-slate-900/10 backdrop-blur-sm border border-white/30 flex items-center justify-center p-1 shadow-inner select-none transition-all">
+              {/* Decorative core */}
+              <div className="w-8 h-8 rounded-full bg-slate-800/10 border border-slate-500/10 absolute z-0" />
+
+              {/* Up Button (Forward) */}
+              <button
+                className="absolute top-1 left-1/2 -translate-x-1/2 w-9 h-9 rounded-xl bg-white/85 active:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-705 shadow-md active:scale-90 transition-all select-none touch-none z-10"
+                {...createControlHandlers('forward')}
+                id="virtual-up"
+              >
+                <ArrowUp size={18} className="text-slate-700" />
+              </button>
+
+              {/* Down Button (Backward) */}
+              <button
+                className="absolute bottom-1 left-1/2 -translate-x-1/2 w-9 h-9 rounded-xl bg-white/85 active:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-705 shadow-md active:scale-90 transition-all select-none touch-none z-10"
+                {...createControlHandlers('backward')}
+                id="virtual-down"
+              >
+                <ArrowDown size={18} className="text-slate-700" />
+              </button>
+
+              {/* Left Button */}
+              <button
+                className="absolute left-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-white/85 active:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-705 shadow-md active:scale-90 transition-all select-none touch-none z-10"
+                {...createControlHandlers('left')}
+                id="virtual-left"
+              >
+                <ArrowLeft size={18} className="text-slate-700" />
+              </button>
+
+              {/* Right Button */}
+              <button
+                className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-white/85 active:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-750 shadow-md active:scale-90 transition-all select-none touch-none z-10"
+                {...createControlHandlers('right')}
+                id="virtual-right"
+              >
+                <ArrowRight size={18} className="text-slate-700" />
+              </button>
             </div>
           </div>
 
@@ -371,6 +440,26 @@ export const GameUI: React.FC<GameUIProps> = ({
               </div>
             </div>
           )}
+
+          {/* Right Side: Virtual Jump Button + Info overlay */}
+          <div className="pointer-events-auto flex flex-col items-end gap-3">
+            {/* Coordinates HUD */}
+            <div className="hidden sm:flex bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white font-mono text-[10px] text-slate-500 flex flex-col gap-1 shadow-md shadow-sky-100/10">
+              <div>POS X: <span className="text-slate-800 font-bold ml-1">{currentPos.x.toFixed(2)}</span></div>
+              <div>POS Y: <span className="text-slate-800 font-bold ml-1">{currentPos.y.toFixed(2)}</span></div>
+              <div>POS Z: <span className="text-slate-800 font-bold ml-1">{currentPos.z.toFixed(2)}</span></div>
+            </div>
+
+            {/* Large Tactical Jump Button */}
+            <button
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-blue-600/90 hover:bg-blue-600 border border-blue-400 text-white flex flex-col items-center justify-center shadow-lg active:scale-95 active:shadow-md transition-all select-none touch-none font-extrabold tracking-widest cursor-pointer"
+              {...createControlHandlers('jump')}
+              id="virtual-jump"
+            >
+              <Zap size={22} className="text-amber-300 fill-amber-300 animate-pulse mb-0.5" />
+              <span className="text-[10px] sm:text-[11px] uppercase">JUMP</span>
+            </button>
+          </div>
 
         </div>
       )}

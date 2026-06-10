@@ -139,17 +139,17 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#bae6fd] to-[#f8fafc] flex flex-col justify-between items-center px-4 py-4 select-none text-slate-800 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-[#bae6fd] to-[#f8fafc] flex flex-col justify-between items-center px-2 py-2 sm:px-4 sm:py-4 select-none text-slate-800 overflow-hidden">
       
       {/* HEADER RAIL - Elegant, clean, professional minimalist logo */}
-      <header className="w-full max-w-7xl flex items-center justify-between border-b border-slate-200/55 pb-2 mb-2">
+      <header className="w-full max-w-7xl flex items-center justify-between border-b border-slate-200/55 pb-1.5 sm:pb-2 mb-1.5 sm:mb-2">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-white/90 border border-white flex items-center justify-center text-blue-650 shadow-sm">
-            <Cloud size={18} className="text-blue-600 animate-pulse" />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/90 border border-white flex items-center justify-center text-blue-650 shadow-sm">
+            <Cloud size={16} className="text-blue-600 animate-pulse" />
           </div>
           <div>
-            <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 block leading-none">PHYSICS 3D</span>
-            <span className="text-sm font-serif italic font-extrabold text-slate-800 tracking-tight">雲の上の玉転がし</span>
+            <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-slate-500 block leading-none">PHYSICS 3D</span>
+            <span className="text-xs sm:text-sm font-serif italic font-extrabold text-slate-800 tracking-tight">雲の上の玉転がし</span>
           </div>
         </div>
 
@@ -175,7 +175,7 @@ export default function App() {
       </header>
 
       {/* CORE 3D INTERFACE PLAY STAGE (Generates real viewport 3D) */}
-      <main className="w-full max-w-7xl flex-grow h-[80vh] min-h-[500px] relative rounded-3xl bg-slate-100 border border-white/60 shadow-2xl shadow-sky-100/20 overflow-hidden mb-2">
+      <main className="w-full max-w-7xl flex-grow h-[65vh] sm:h-[80vh] min-h-[380px] sm:min-h-[500px] relative rounded-2xl sm:rounded-3xl bg-slate-100 border border-white/60 shadow-2xl shadow-sky-100/20 overflow-hidden mb-1.5 sm:mb-2">
         
         {/* Core Canvas Element for Three.JS */}
         <GameCanvas
@@ -212,7 +212,7 @@ export default function App() {
       </main>
 
       {/* FOOTER BAR */}
-      <footer className="w-full max-w-7xl flex justify-between items-center text-[10px] text-slate-500 font-bold">
+      <footer className="w-full max-w-7xl hidden sm:flex justify-between items-center text-[10px] text-slate-500 font-bold">
         <span>© 2026 雲の上の玉転がし3D | Web Audio API / Three.js 物理演算シミュレータ</span>
         <span className="flex items-center gap-1"><Shield size={10} className="text-emerald-600" /> 安全なサンドボックス環境</span>
       </footer>
