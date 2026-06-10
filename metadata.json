@@ -1,0 +1,6 @@
+{
+  "name": "雲の上の玉転がし",
+  "description": "雲の上に浮かぶ一本橋を渡る、物理演算による3D玉転がしゲーム。重力、摩擦、慣性を忠実にシミュレートし、ダイナミックな一本橋コースを攻略します。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
